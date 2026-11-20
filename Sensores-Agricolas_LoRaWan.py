@@ -14,3 +14,9 @@ class Sensores_LoRaWan(QMainWindow, Ui_MainWindow):
     def __init__(self):
         super().__init__()
         self.setupUi(self)
+        self.textEdit_Rssi.setPlainText("-110")
+        self.textEdit_SNR.setPlainText("-5")
+        self.textEdit_bateria.setPlainText("3.3")
+        self.textEdit_ventanaPromedio.setPlainText("6")
+        
+                
