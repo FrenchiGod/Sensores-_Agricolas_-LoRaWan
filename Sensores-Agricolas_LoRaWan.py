@@ -8,6 +8,7 @@ matplotlib.use('QtAgg')
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FiguresCanvas, NavigationToolbar2QT
 from matplotlib.figure import Figure
 from PySide6.QtWidgets import QApplication, QMainWindow, QVBoxLayout
+from PySide6.QtCore import QSize
 
 #importamos la interfaz grafica
 from ui_sensores_LoRaWan import Ui_MainWindow
@@ -71,7 +72,11 @@ class Sensores_LoRaWan(QMainWindow, Ui_MainWindow):
         layout_2.addWidget(self.canvas_bateria)
 
         self.pushButton.clicked.connect(self.Analizar)
+        self.comboBox.currentTextChanged.connect(self.Analizar)
         self.Analizar()
+
+        #modificacion de la barra de herramientas del grafico
+
 
     def Analizar(self):
 
@@ -162,6 +167,13 @@ class Sensores_LoRaWan(QMainWindow, Ui_MainWindow):
         inicio = fin - pd.Timedelta(days=7)
         df_grafico = df_grafico[df_grafico["timestamp"] > inicio].copy()
 
+        #agrupamos los valores por hora para que no sea cada 10 min
+
+        df_grafico = df_grafico.set_index("timestamp").resample("1h").agg({
+            "rssi": lambda s: 10 * np.log10((10 ** (s.dropna() / 10)).mean()) if not s.dropna().empty else np.nan,
+            "bateria": lambda s: s[s > 0].mean() if not s[s > 0].empty else np.nan
+        }).reset_index()
+
         #NO SE QUE ES CONSULTAR LINEA
 
         potencia_mw=10**(df_grafico["rssi"]/10)
@@ -196,7 +208,13 @@ class Sensores_LoRaWan(QMainWindow, Ui_MainWindow):
         self.ax_Rssi.set_title(f"RSSI del nodo {nodo_lista} (dBm)", fontsize=10, fontweight='bold')
         self.ax_Rssi.set_ylabel("RSSI (dBm)")
 
+        #fijamos el grafico
+
+        self.ax_Rssi.set_ylim(-125, -80)
+        self.ax_Rssi.set_yticks([-125, -110, -95, -80])
+
         #estilo grafico
+
         self.ax_Rssi.grid(True, linestyle='--', alpha=0.4, color='gray')
         self.ax_Rssi.xaxis.set_major_locator(mdates.DayLocator())
         self.ax_Rssi.xaxis.set_major_formatter(
@@ -211,17 +229,23 @@ class Sensores_LoRaWan(QMainWindow, Ui_MainWindow):
         self.ax_bateria.set_title(f"Tensión de batería del nodo {nodo_lista} (V)", fontsize=10, fontweight='bold')
         self.ax_bateria.set_ylabel("Bateria (v)")
 
+        self.ax_bateria.set_ylim(2.8, 3.8)
+        self.ax_bateria.set_yticks([2.8, 3.3, 3.8])
+
         #estilo grafico
+        
         self.ax_bateria.grid(True, linestyle='--', alpha=0.4, color='gray')
         self.ax_bateria.xaxis.set_major_locator(mdates.DayLocator())
         self.ax_bateria.xaxis.set_major_formatter(
             FuncFormatter(lambda x, pos: dias_ejex[mdates.num2date(x).weekday()])
         )
 
-        self.figure_Rssi.tight_layout()
+        #ajuste de margenes para que el grafico sea ancho 
+
+        self.figure_Rssi.subplots_adjust(left=0.09, right=0.98, top=0.85, bottom=0.28)
         self.canvas_Rssi.draw()
 
-        self.figure_bateria.tight_layout()
+        self.figure_bateria.subplots_adjust(left=0.09, right=0.98, top=0.85, bottom=0.28)
         self.canvas_bateria.draw()
             
 
