@@ -5,13 +5,21 @@ import os
 import pandas as pd
 os.environ['QT_API']='pyside6'
 matplotlib.use('QtAgg')
-from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FiguresCanvas
+from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FiguresCanvas, NavigationToolbar2QT
 from matplotlib.figure import Figure
 from PySide6.QtWidgets import QApplication, QMainWindow, QVBoxLayout
-from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas, NavigationToolbar2QT
+
+#importamos la interfaz grafica
 from ui_sensores_LoRaWan import Ui_MainWindow
+
 from PySide6.QtWidgets import QTableWidgetItem
 from PySide6.QtGui import QColor
+
+#importamos para graficar 
+
+import matplotlib.dates as mdates
+from matplotlib.ticker import FuncFormatter
+
 
 class Sensores_LoRaWan(QMainWindow, Ui_MainWindow):
 
@@ -22,10 +30,6 @@ class Sensores_LoRaWan(QMainWindow, Ui_MainWindow):
 
         self.setupUi(self)
 
-        #self.textEdit_Rssi.setPlainText("-110")
-        #self.textEdit_SNR.setPlainText("-5")
-        #self.textEdit_bateria.setPlainText("3.3")
-        #self.textEdit_ventanaPromedio.setPlainText("6")
 
         #archivo csv
         
@@ -142,6 +146,56 @@ class Sensores_LoRaWan(QMainWindow, Ui_MainWindow):
                 self.tableWidget.setItem(fila, col, item)
         
         self.tableWidget.resizeColumnsToContents()
+
+        #Graficas
+        ventana=self.Ventana.value()
+
+        #cargamos los datos del nodo elejido a graficar
+
+        df_grafico=self.df[self.df["nodo"]==nodo_lista].sort_values("timestamp").copy()
+
+        if df_grafico.empty:
+            return
+
+        #NO SE QUE ES CONSULTAR LINEA
+
+        potencia_mw=10**(df_grafico["rssi"]/10)
+        promedio_movil_mw=potencia_mw.rolling(window=ventana, min_periods=1).mean()
+
+        #agregamos una columna con el rssi movil
+
+        df_grafico["rssi_movil"]=10*np.log10(promedio_movil_mw)
+
+        #filtramos las baterias que estan en cero
+
+        df_bateria=df_grafico[df_grafico["bateria"]>0]
+
+        #limpiamos los ejes para que cuando se actualize cambie 
+
+        self.ax_Rssi.clear()
+        self.ax_bateria.clear()
+
+        #grafico RSSI
+
+        self.ax_Rssi.plot(df_grafico["timestamp"], df_grafico["rssi"],color="blue", linewidth=1.0, alpha=0.8, label='RSSI')
+
+        #grafico promedio RSSI
+
+        self.ax_Rssi.plot(df_grafico["timestamp"],df_grafico["rssi_movil"],color="orange", linewidth=2.0, label='Promedio móvil')
+        self.ax_Rssi.axhline(y=umbral_rssi, color="red", linestyle='--',
+                             linewidth=1.5, label='Umbral')
+        self.ax_Rssi.set_title("RSSI nodo",nodo_lista, "dbm", )
+        self.ax_Rssi.set_ylabel("RSSI (dBm)")
+
+        
+
+
+        
+
+
+
+
+
 
 
  # Inicializar el administrador de la aplicación Qt pasándole los argumentos del sistema
