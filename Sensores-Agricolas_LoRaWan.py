@@ -27,7 +27,7 @@ class Sensores_LoRaWan(QMainWindow, Ui_MainWindow):
 
         #archivo csv
         
-        archivo_csv="nodos.cvs"
+        archivo_csv="nodos.csv"
         #se corrobora que el archivo exista
         if os.path.isfile(archivo_csv):
             self.df=pd.read_csv(archivo_csv, parse_dates=["timestamp"])
@@ -35,9 +35,9 @@ class Sensores_LoRaWan(QMainWindow, Ui_MainWindow):
 
             #auto llenado del listado de nodos
 
-            self.comboBox_Nodos.clear()
+            self.comboBox.clear()
             for nodo in nodos:
-                self.comboBox_Nodos.addItem(str(nodo))
+                self.comboBox.addItem(str(nodo))
         else:
             self.df=None
             #QMessageBox.critical(self, "error", "archivo csv inexistente")
@@ -72,12 +72,10 @@ class Sensores_LoRaWan(QMainWindow, Ui_MainWindow):
         if self.df is None:
             return
         #accede a los elementos de la lista
-        nodo_lista=self.comboBox_Nodos.currentText()
-        try: 
-            umbral_Rssi=float(self.textEdit_Rssi.toPlainText())
-        except ValueError:
-            umbral_Rssi=-110
-
+        nodo_lista=self.comboBox.currentText()
+        umbral_rssi=self.RSSI.value()
+        umbral_bateria=self.Bateria.value()
+        
 
 
  # Inicializar el administrador de la aplicación Qt pasándole los argumentos del sistema
