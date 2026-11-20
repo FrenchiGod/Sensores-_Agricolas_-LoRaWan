@@ -156,6 +156,11 @@ class Sensores_LoRaWan(QMainWindow, Ui_MainWindow):
 
         if df_grafico.empty:
             return
+        
+        #limitamos los dias para el grafico 
+        fin = df_grafico["timestamp"].max()
+        inicio = fin - pd.Timedelta(days=7)
+        df_grafico = df_grafico[df_grafico["timestamp"] > inicio].copy()
 
         #NO SE QUE ES CONSULTAR LINEA
 
@@ -212,7 +217,12 @@ class Sensores_LoRaWan(QMainWindow, Ui_MainWindow):
         self.ax_bateria.xaxis.set_major_formatter(
             FuncFormatter(lambda x, pos: dias_ejex[mdates.num2date(x).weekday()])
         )
-        
+
+        self.figure_Rssi.tight_layout()
+        self.canvas_Rssi.draw()
+
+        self.figure_bateria.tight_layout()
+        self.canvas_bateria.draw()
             
 
 
