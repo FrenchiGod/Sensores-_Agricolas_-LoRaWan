@@ -355,9 +355,9 @@
    <widget class="QFrame" name="frame_Rssi">
     <property name="geometry">
      <rect>
-      <x>319</x>
-      <y>220</y>
-      <width>611</width>
+      <x>300</x>
+      <y>0</y>
+      <width>641</width>
       <height>201</height>
      </rect>
     </property>
@@ -371,9 +371,9 @@
    <widget class="QFrame" name="frame_Bateria">
     <property name="geometry">
      <rect>
-      <x>319</x>
-      <y>0</y>
-      <width>611</width>
+      <x>300</x>
+      <y>220</y>
+      <width>641</width>
       <height>201</height>
      </rect>
     </property>
