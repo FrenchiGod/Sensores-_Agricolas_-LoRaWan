@@ -30,6 +30,7 @@ class Sensores_LoRaWan(QMainWindow, Ui_MainWindow):
 
         layout_1=QVBoxLayout(self.widget_Rssi)
         layout_1.self.setContentsMargins(0, 0, 0, 0)
+        layout_1.addWidget(NavigationToolbar2QT(self.canvas_Rssi, self))
         layout_1.addWidget(self.canvas_Rssi)
 
         #grafica Bateria
@@ -40,6 +41,7 @@ class Sensores_LoRaWan(QMainWindow, Ui_MainWindow):
 
         layout_1=QVBoxLayout(self.widget_bateria)
         layout_1.self.setContentsMargins(0, 0, 0, 0)
+        layout_1.addWidget(NavigationToolbar2QT(self.canvas_bateria, self))
         layout_1.addWidget(self.canvas_bateria)
 
         self.pushButton_Actualizar.clicked.connect(self.actualizar_grafico)
