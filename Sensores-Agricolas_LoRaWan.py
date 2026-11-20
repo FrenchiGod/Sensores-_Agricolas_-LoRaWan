@@ -187,6 +187,17 @@ class Sensores_LoRaWan(QMainWindow, Ui_MainWindow):
         self.ax_Rssi.set_title(f"RSSI del nodo {nodo_lista} (dBm)", fontsize=10, fontweight='bold')
         self.ax_Rssi.set_ylabel("RSSI (dBm)")
 
+        #grafica de la bateria
+
+        self.ax_bateria.plot(df_bateria["timestamp"],df_bateria["bateria"],color="green",linewidth=1.8, label="bateria")
+        self.ax_bateria.axhline(y=umbral_bateria, color="red",linestyle="--",linewidth=1.5,label="Umbral")
+
+        self.ax_bateria.set_title(f"Tensión de batería del nodo {nodo_lista} (V)", fontsize=10, fontweight='bold')
+        self.ax_bateria.set_ylabel("Bateria (v)")
+
+        #dias de la semana eje x, mediante diccionario key:value"
+
+        
 
 
 
