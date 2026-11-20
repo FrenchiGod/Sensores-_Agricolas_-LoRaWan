@@ -153,6 +153,7 @@ class Sensores_LoRaWan(QMainWindow, Ui_MainWindow):
         self.tableWidget.resizeColumnsToContents()
 
         #Graficas
+        
         Ventana=self.ventana.value()
 
         #cargamos los datos del nodo elejido a graficar
@@ -162,107 +163,75 @@ class Sensores_LoRaWan(QMainWindow, Ui_MainWindow):
         if df_grafico.empty:
             return
         
-        #limitamos los dias para el grafico 
-        fin = df_grafico["timestamp"].max()
-        inicio = fin - pd.Timedelta(days=7)
-        df_grafico = df_grafico[df_grafico["timestamp"] > inicio].copy()
-
         #agrupamos los valores por hora para que no sea cada 10 min
 
-        df_grafico = df_grafico.set_index("timestamp").resample("1h").agg({
-            "rssi": lambda s: 10 * np.log10((10 ** (s.dropna() / 10)).mean()) if not s.dropna().empty else np.nan,
-            "bateria": lambda s: s[s > 0].mean() if not s[s > 0].empty else np.nan
-        }).reset_index()
+        fin = df_grafico["timestamp"].max()
+        inicio = fin.floor("D") - pd.Timedelta(days=6)
+        df_grafico = df_grafico[df_grafico["timestamp"] >= inicio].copy()
 
-        #NO SE QUE ES CONSULTAR LINEA
+        # agrupamos por hora (pasando RSSI a mW para promediar bien)
 
-        potencia_mw=10**(df_grafico["rssi"]/10)
-        promedio_movil_mw=potencia_mw.rolling(window=Ventana, min_periods=1).mean()
+        df_grafico.loc[df_grafico["bateria"] == 0, "bateria"] = np.nan
+        df_grafico["rssi_mw"] = 10 ** (df_grafico["rssi"] / 10)
+        df_grafico = df_grafico.set_index("timestamp")[["rssi_mw", "bateria"]].resample("1h").mean().reset_index()
+        df_grafico["rssi"] = 10 * np.log10(df_grafico["rssi_mw"])
 
-        #agregamos una columna con el rssi movil
+        # promedio movil del ventana
 
-        df_grafico["rssi_movil"]=10*np.log10(promedio_movil_mw)
+        promedio_movil_mw = df_grafico["rssi_mw"].rolling(window=Ventana, min_periods=1).mean()
+        df_grafico["rssi_movil"] = 10 * np.log10(promedio_movil_mw)
 
-        #filtramos las baterias que estan en cero
+        #filtramos las baterias que no sean cero
+        df_bateria = df_grafico[df_grafico["bateria"] > 0]
 
-        df_bateria=df_grafico[df_grafico["bateria"]>0]
-
-        #limpiamos los ejes para que cuando se actualize cambie 
-
+        #limpiamos los ejes para que cuando se actualice cambie
         self.ax_Rssi.clear()
         self.ax_bateria.clear()
 
-        #dias de la semana eje x, mediante diccionario key:value"
+        # etiquetas para los dias en el eje x
+        dias_ejex = {0: "lun", 1: "mar", 2: "mier", 3: "jue", 4: "vie", 5: "sab", 6: "dom"}
+        fechas_dias = pd.date_range(start=df_grafico["timestamp"].min().floor("D"), periods=7, freq="1D")
+        etiquetas_dias = []
+        for dia in fechas_dias:
+            etiquetas_dias.append(dias_ejex[dia.weekday()])
 
-        dias_ejex={0:"lun",1:"mar",2:"mier",3:"jue",4:"vie",5:"sab",6:"dom"}
+        # grafico del Rssi
+        self.ax_Rssi.plot(df_grafico["timestamp"], df_grafico["rssi"], color="#6baed6", linewidth=1.0, label="RSSI")
+        self.ax_Rssi.plot(df_grafico["timestamp"], df_grafico["rssi_movil"], color="orange", linewidth=2.0, label="Promedio móvil")
+        self.ax_Rssi.axhline(y=umbral_rssi, color="red", linestyle="--", linewidth=1.5, label="Umbral")
 
-        #grafico RSSI
-
-        self.ax_Rssi.plot(df_grafico["timestamp"], df_grafico["rssi"],color="blue", linewidth=1.0, alpha=0.8, label='RSSI')
-
-        #grafico promedio RSSI
-
-        self.ax_Rssi.plot(df_grafico["timestamp"],df_grafico["rssi_movil"],color="orange", linewidth=2.0, label='Promedio móvil')
-        self.ax_Rssi.axhline(y=umbral_rssi, color="red", linestyle='--',
-                             linewidth=1.5, label='Umbral')
-        self.ax_Rssi.set_title(f"RSSI del nodo {nodo_lista} (dBm)", fontsize=10, fontweight='bold')
+        self.ax_Rssi.set_title(f"RSSI del nodo {nodo_lista} (dBm)", fontsize=10, fontweight="bold")
         self.ax_Rssi.set_ylabel("RSSI (dBm)")
-
-        #fijamos el grafico
-
         self.ax_Rssi.set_ylim(-125, -80)
         self.ax_Rssi.set_yticks([-125, -110, -95, -80])
+        self.ax_Rssi.set_xlim(df_grafico["timestamp"].min(), df_grafico["timestamp"].max())
+        self.ax_Rssi.set_xticks(fechas_dias)
+        self.ax_Rssi.set_xticklabels(etiquetas_dias)
+        self.ax_Rssi.grid(True, linestyle="--", alpha=0.4, color="gray")
+        self.ax_Rssi.legend(loc="upper center", bbox_to_anchor=(0.5, -0.22), ncol=3, fontsize=8)
 
-        #estilo grafico
+        # grafica de la bateria 
 
-        self.ax_Rssi.grid(True, linestyle='--', alpha=0.4, color='gray')
-        self.ax_Rssi.xaxis.set_major_locator(mdates.DayLocator())
-        self.ax_Rssi.xaxis.set_major_formatter(
-                FuncFormatter(lambda x, pos: dias_ejex[mdates.num2date(x).weekday()])
-        )
+        self.ax_bateria.plot(df_bateria["timestamp"], df_bateria["bateria"], color="green", linewidth=1.8, label="Batería")
+        self.ax_bateria.axhline(y=umbral_bateria, color="red", linestyle="--", linewidth=1.5, label="Umbral")
 
-        #grafica de la bateria
-
-        self.ax_bateria.plot(df_bateria["timestamp"],df_bateria["bateria"],color="green",linewidth=1.8, label="bateria")
-        self.ax_bateria.axhline(y=umbral_bateria, color="red",linestyle="--",linewidth=1.5,label="Umbral")
-
-        self.ax_bateria.set_title(f"Tensión de batería del nodo {nodo_lista} (V)", fontsize=10, fontweight='bold')
-        self.ax_bateria.set_ylabel("Bateria (v)")
-
+        self.ax_bateria.set_title(f"Tensión de batería del nodo {nodo_lista} (V)", fontsize=10, fontweight="bold")
+        self.ax_bateria.set_ylabel("Batería (V)")
         self.ax_bateria.set_ylim(2.8, 3.8)
         self.ax_bateria.set_yticks([2.8, 3.3, 3.8])
+        self.ax_bateria.set_xlim(df_bateria["timestamp"].min(), df_bateria["timestamp"].max())
+        self.ax_bateria.set_xticks(fechas_dias)
+        self.ax_bateria.set_xticklabels(etiquetas_dias)
+        self.ax_bateria.grid(True, linestyle="--", alpha=0.4, color="gray")
+        self.ax_bateria.legend(loc="upper center", bbox_to_anchor=(0.5, -0.22), ncol=2, fontsize=8)
 
-        #estilo grafico
-        
-        self.ax_bateria.grid(True, linestyle='--', alpha=0.4, color='gray')
-        self.ax_bateria.xaxis.set_major_locator(mdates.DayLocator())
-        self.ax_bateria.xaxis.set_major_formatter(
-            FuncFormatter(lambda x, pos: dias_ejex[mdates.num2date(x).weekday()])
-        )
+        #se ajusto los margenes (left=0.13 para que se lea "RSSI (dBm)" y bottom=0.30 para la leyenda)
 
-        #ajuste de margenes para que el grafico sea ancho 
-
-        self.figure_Rssi.subplots_adjust(left=0.09, right=0.98, top=0.85, bottom=0.28)
+        self.figure_Rssi.subplots_adjust(left=0.13, right=0.98, top=0.85, bottom=0.30)
         self.canvas_Rssi.draw()
 
-        self.figure_bateria.subplots_adjust(left=0.09, right=0.98, top=0.85, bottom=0.28)
+        self.figure_bateria.subplots_adjust(left=0.13, right=0.98, top=0.85, bottom=0.30)
         self.canvas_bateria.draw()
-            
-
-
-        
-
-        
-
-
-
-        
-
-
-
-
-
-
 
  # Inicializar el administrador de la aplicación Qt pasándole los argumentos del sistema
 app = QApplication(sys.argv)
