@@ -70,7 +70,7 @@ class Ui_MainWindow(object):
         self.Bateria.setStyleSheet(u"background-color: rgb(246, 245, 244);")
         self.Bateria.setDecimals(1)
         self.Bateria.setMaximum(150.000000000000000)
-        self.Bateria.setValue(33.000000000000000)
+        self.Bateria.setValue(3.300000000000000)
         self.ventana = QSpinBox(self.Parametros)
         self.ventana.setObjectName(u"ventana")
         self.ventana.setGeometry(QRect(210, 120, 61, 26))

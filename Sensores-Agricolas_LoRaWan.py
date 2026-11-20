@@ -10,6 +10,8 @@ from matplotlib.figure import Figure
 from PySide6.QtWidgets import QApplication, QMainWindow, QVBoxLayout
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas, NavigationToolbar2QT
 from ui_sensores_LoRaWan import Ui_MainWindow
+from PySide6.QtWidgets import QTableWidgetItem
+from PySide6.QtGui import QColor
 
 class Sensores_LoRaWan(QMainWindow, Ui_MainWindow):
 
@@ -38,6 +40,87 @@ class Sensores_LoRaWan(QMainWindow, Ui_MainWindow):
             self.comboBox.clear()
             for nodo in nodos:
                 self.comboBox.addItem(str(nodo))
+
+            #tabala informe
+
+            umbral_rssi = self.RSSI.value()
+            umbral_snr = self.SNR.value()
+            umbral_bateria = self.Bateria.value()
+
+            df_sin_Reinicios=self.df.drop_duplicates().copy()
+            nodos=sorted(self.df["nodo"].unique())
+            self.tableWidget.setRowCount(len(nodos))
+
+            #por cada nodo guardamos su valor y calculamos su promedio en SRN y RSSI ademas de su bateria minima y los saltos del contador
+
+            for fila, nodo in enumerate(nodos):
+
+                #datos de cada nodo en el tiempo 
+
+                df_nodo=df_sin_Reinicios[df_sin_Reinicios["nodo"]==nodo].sort_values("timestamp").copy()
+
+                #promedios
+
+                rssi_promedio=10 * np.log10((10 ** (df_nodo["rssi"] / 10)).mean())
+                snr_promedio= 10 * np.log10((10 ** (df_nodo["snr"] / 10)).mean())
+
+                #filtramos las baterias con valores nulos
+
+                baterias_con_valor=df_nodo[df_nodo["bateria"]> 0 ]["bateria"]
+                bateria_minino=baterias_con_valor.min()
+
+                #conteo de tramas perdidas y reinicios reales 
+
+                differencia_contador=df_nodo["contador"].diff()
+                reinicios=int((differencia_contador < 0).sum())
+
+                saltos=differencia_contador[differencia_contador > 1]
+                perdidas= int ((saltos-1).sum())
+
+                #despues del reinicio 
+
+                arranques_despues_del_reinicio =df_nodo.loc[differencia_contador < 0 , "contador"]
+                perdidas += int(arranques_despues_del_reinicio[arranques_despues_del_reinicio > 0].sum())
+
+                #calculo del porcentaje de perdidas
+
+                total_sin_perdidas=len(df_nodo)+perdidas
+                porcentaje_perdidas=(perdidas/total_sin_perdidas*100.0)if total_sin_perdidas > 0 else 0.0
+
+                #estado
+                if bateria_minino < umbral_bateria or rssi_promedio < umbral_rssi or porcentaje_perdidas > 10.0:
+                    estado = "critico"
+                    bg = QColor("#f8d7da")
+                    fg = QColor("#842029")
+                elif snr_promedio < umbral_snr or reinicios > 0 or porcentaje_perdidas > 3.0:
+                    estado= "alerta"
+                    bg= QColor("#fff3cd")
+                    fg= QColor("#664d03")
+                else:
+                    estado ="Normal"
+                    bg= QColor("#d1e7dd")
+                    fg= QColor("#0f5132")
+
+                #insertamos datos en la tabla
+
+                datos_fila = [
+                    str(nodo),
+                    f"{rssi_promedio:.1f}",
+                    f"{snr_promedio:.1f}",
+                    f"{bateria_minino:.2f}",
+                    f"{porcentaje_perdidas:.1f}%",
+                    estado
+                ]
+
+                for col, texto in enumerate(datos_fila):
+                    item = QTableWidgetItem(texto)
+                    if col == 5:
+                        item.setBackground(bg)
+                        item.setForeground(fg)
+                    self.tableWidget.setItem(fila, col, item)
+        
+            self.tableWidget.resizeColumnsToContents()
+
         else:
             self.df=None
             #QMessageBox.critical(self, "error", "archivo csv inexistente")
@@ -75,6 +158,7 @@ class Sensores_LoRaWan(QMainWindow, Ui_MainWindow):
         nodo_lista=self.comboBox.currentText()
         umbral_rssi=self.RSSI.value()
         umbral_bateria=self.Bateria.value()
+    
         
 
 
