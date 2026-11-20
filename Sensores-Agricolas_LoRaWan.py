@@ -8,9 +8,11 @@ matplotlib.use('QtAgg')
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FiguresCanvas
 from matplotlib.figure import Figure
 from PySide6.QtWidgets import QApplication, QMainWindow, QVBoxLayout
+from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas, NavigationToolbar2QT
 from ui_sensores_LoRaWan import Ui_MainWindow
 
 class Sensores_LoRaWan(QMainWindow, Ui_MainWindow):
+
     def __init__(self):
         super().__init__()
 
@@ -26,10 +28,10 @@ class Sensores_LoRaWan(QMainWindow, Ui_MainWindow):
 
         self.figure_Rssi=Figure(facecolor='#FFFFFF')
         self.canvas_Rssi=FiguresCanvas(self.figure_Rssi)
-        self.ax=self.figure_Rssi.add_subplot(111)
+        self.ax_Rssi=self.figure_Rssi.add_subplot(111)
 
         layout_1=QVBoxLayout(self.widget_Rssi)
-        layout_1.self.setContentsMargins(0, 0, 0, 0)
+        layout_1.setContentsMargins(0, 0, 0, 0)
         layout_1.addWidget(NavigationToolbar2QT(self.canvas_Rssi, self))
         layout_1.addWidget(self.canvas_Rssi)
 
@@ -37,14 +39,20 @@ class Sensores_LoRaWan(QMainWindow, Ui_MainWindow):
 
         self.figure_bateria=Figure(facecolor='#FFFFFF')
         self.canvas_bateria=FiguresCanvas(self.figure_bateria)
-        self.ax=self.figure_bateria.add_subplot(111)
+        self.ax_bateria=self.figure_bateria.add_subplot(111)
 
         layout_1=QVBoxLayout(self.widget_bateria)
-        layout_1.self.setContentsMargins(0, 0, 0, 0)
+        layout_1.setContentsMargins(0, 0, 0, 0)
         layout_1.addWidget(NavigationToolbar2QT(self.canvas_bateria, self))
         layout_1.addWidget(self.canvas_bateria)
 
         self.pushButton_Actualizar.clicked.connect(self.actualizar_grafico)
         self.actualizar_grafico()
+
+    def actualizar_grafico(self):
+
+
+        
+
     
                 
