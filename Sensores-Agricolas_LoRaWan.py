@@ -24,6 +24,23 @@ class Sensores_LoRaWan(QMainWindow, Ui_MainWindow):
         self.textEdit_bateria.setPlainText("3.3")
         self.textEdit_ventanaPromedio.setPlainText("6")
 
+        #archivo csv
+        
+        archivo_csv="nodos.cvs"
+        #se corrobora que el archivo exista
+        if os.path.isfile(archivo_csv):
+            self.df=pd.read_csv(archivo_csv, parse_dates=["timestamp"])
+            nodos=sorted(self.df["nodo"].unique())
+
+            #auto llenado del listado de nodos
+
+            self.comboBox_Nodos.clear()
+            for nodo in nodos:
+                self.comboBox_Nodos.addItem(str(nodo))
+        else:
+            self.df=None
+            QMessageBox.critical(self, "error", "archivo csv inexistente")
+
         #grafica Rssi
 
         self.figure_Rssi=Figure(facecolor='#FFFFFF')
