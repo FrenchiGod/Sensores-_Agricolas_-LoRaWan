@@ -148,7 +148,7 @@ class Sensores_LoRaWan(QMainWindow, Ui_MainWindow):
         self.tableWidget.resizeColumnsToContents()
 
         #Graficas
-        ventana=self.Ventana.value()
+        Ventana=self.ventana.value()
 
         #cargamos los datos del nodo elejido a graficar
 
@@ -160,7 +160,7 @@ class Sensores_LoRaWan(QMainWindow, Ui_MainWindow):
         #NO SE QUE ES CONSULTAR LINEA
 
         potencia_mw=10**(df_grafico["rssi"]/10)
-        promedio_movil_mw=potencia_mw.rolling(window=ventana, min_periods=1).mean()
+        promedio_movil_mw=potencia_mw.rolling(window=Ventana, min_periods=1).mean()
 
         #agregamos una columna con el rssi movil
 
@@ -184,10 +184,10 @@ class Sensores_LoRaWan(QMainWindow, Ui_MainWindow):
         self.ax_Rssi.plot(df_grafico["timestamp"],df_grafico["rssi_movil"],color="orange", linewidth=2.0, label='Promedio móvil')
         self.ax_Rssi.axhline(y=umbral_rssi, color="red", linestyle='--',
                              linewidth=1.5, label='Umbral')
-        self.ax_Rssi.set_title("RSSI nodo",nodo_lista, "dbm", )
+        self.ax_Rssi.set_title(f"RSSI del nodo {nodo_lista} (dBm)", fontsize=10, fontweight='bold')
         self.ax_Rssi.set_ylabel("RSSI (dBm)")
 
-        
+
 
 
         
