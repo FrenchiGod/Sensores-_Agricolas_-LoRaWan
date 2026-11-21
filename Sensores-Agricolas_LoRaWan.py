@@ -93,55 +93,58 @@ class Sensores_LoRaWan(QMainWindow, Ui_MainWindow):
         #informe
         nodos = sorted(self.df["nodo"].unique())
         self.tableWidget.setRowCount(len(nodos))
+
         problemas = []
-        perdidas = []
+        lista_perdidas = []
 
-        #analizar cada nodo y acumular los eventos
         for fila, nodo in enumerate(nodos):
-            df_nodo = df_sin_Reinicios[df_sin_Reinicios["nodo"] == nodo].sort_values("timestamp")
+            df_nodo = df_sin_Reinicios[df_sin_Reinicios["nodo"] == nodo].sort_values("timestamp").copy()
 
-            # Métricas (RSSI y SNR convertidos a escala lineal para promediar)
-            bat_min = df_nodo["bateria"].min()
-            rssi_prom = 10 * np.log10((10 ** (df_nodo["rssi"] / 10)).mean())
-            snr_prom = 10 * np.log10((10 ** (df_nodo["snr"] / 10)).mean())
+            rssi_promedio = 10 * np.log10((10 ** (df_nodo["rssi"] / 10)).mean())
+            snr_promedio = 10 * np.log10((10 ** (df_nodo["snr"] / 10)).mean())
 
-            # Saltos y reinicios a partir de la diferencia entre contadores consecutivos
-            diffs = df_nodo["contador"].diff().dropna()
-            reinicios = int((diffs < 0).sum())
-            tramas_perdidas = int((diffs[diffs > 1] - 1).sum())
+            baterias_con_valor = df_nodo[df_nodo["bateria"] > 0]["bateria"]
+            bateria_minimo = baterias_con_valor.min()
 
-            # Evaluar umbrales y agregar ítems a "Nodos con problemas"
-            if bat_min < umbral_bateria:
-                problemas.append(f"<li>{nodo}: batería baja ({bat_min:.1f} V)</li>")
-            if reinicios > 0:
-                problemas.append(f"<li>{nodo}: {reinicios} reinicio(s)</li>")
-            if rssi_prom < umbral_rssi:
-                problemas.append(f"<li>{nodo}: RSSI bajo ({rssi_prom:.0f} dBm)</li>")
-            if snr_prom < umbral_snr:
-                problemas.append(f"<li>{nodo}: SNR bajo ({snr_prom:.1f} dB)</li>")
+            differencia_contador = df_nodo["contador"].diff()
+            reinicios = int((differencia_contador < 0).sum())
+            saltos = differencia_contador[differencia_contador > 1]
+            perdidas = int((saltos - 1).sum())
 
-            # Evaluar pérdida de tramas
-            if tramas_perdidas > 0:
-                total_esperadas = len(df_nodo) + tramas_perdidas
-                porcentaje = (tramas_perdidas / total_esperadas) * 100
-                perdidas.append(f"<li>{nodo}: {tramas_perdidas} tramas perdidas ({porcentaje:.1f}%)</li>")
+            arranques_despues_del_reinicio = df_nodo.loc[differencia_contador < 0, "contador"]
+            perdidas += int(arranques_despues_del_reinicio[arranques_despues_del_reinicio > 0].sum())
 
-        # construir el HTML y cargarlo en el widget
-        lista_problemas = "".join(problemas) if problemas else "<li>Sin problemas detectados</li>"
-        lista_perdidas = "".join(perdidas) if perdidas else "<li>Sin pérdida de tramas</li>"
+            total_sin_perdidas = len(df_nodo) + perdidas
+            porcentaje_perdidas = (perdidas / total_sin_perdidas * 100.0) if total_sin_perdidas > 0 else 0.0
 
-        html_informe = f"""
-        <b>Nodos con problemas</b>
-        <ul>{lista_problemas}</ul>
-        <b>Pérdida de tramas</b>
-        <ul>{lista_perdidas}</ul>
-        """
-        self.textBrowser.setHtml(html_informe)
+            # Acumular líneas para el informe en texto plano
+            if round(bateria_minimo, 2) < round(umbral_bateria, 2):
+                problemas.append(f"• {nodo}: batería baja ({bateria_minimo:.2f} V)")
+            if round(reinicios, 2) > 0:
+                problemas.append(f"• {nodo}: {reinicios} reinicio(s)")
+            if round(rssi_promedio, 2) < round(umbral_rssi, 2):
+                problemas.append(f"• {nodo}: RSSI bajo ({rssi_promedio:.0f} dBm)")
+            if round(snr_promedio, 2) < round(umbral_snr, 2):
+                problemas.append(f"• {nodo}: SNR bajo ({snr_promedio:.1f} dB)")
+
+            if perdidas > 0:
+                lista_perdidas.append(f"• {nodo}: {perdidas} tramas perdidas ({porcentaje_perdidas:.1f}%)")
+
+
+        bloque_problemas = "\n".join(problemas) if problemas else "• Sin problemas detectados"
+        bloque_perdidas = "\n".join(lista_perdidas) if lista_perdidas else "• Sin pérdida de tramas"
+
+        texto_informe = (
+            "Nodos con problemas\n"
+            f"{bloque_problemas}\n\n"
+            "Pérdida de tramas\n"
+            f"{bloque_perdidas}"
+        )
+        self.textBrowser.setPlainText(texto_informe)
 
 
         #por cada nodo guardamos su valor y calculamos su promedio en SRN y RSSI ademas de su bateria minima y los saltos del contador
         for fila, nodo in enumerate(nodos):
-
 
             #datos de cada nodo en el tiempo 
             df_nodo = df_sin_Reinicios[df_sin_Reinicios["nodo"]==nodo].sort_values("timestamp").copy()
