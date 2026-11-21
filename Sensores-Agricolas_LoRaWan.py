@@ -9,7 +9,7 @@ matplotlib.use('QtAgg')
 
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FiguresCanvas, NavigationToolbar2QT
 from matplotlib.figure import Figure
-from PySide6.QtWidgets import QApplication, QMainWindow, QVBoxLayout
+from PySide6.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QFileDialog, QMessageBox
 from PySide6.QtCore import QSize
 
 #importamos la interfaz grafica
@@ -29,23 +29,6 @@ class Sensores_LoRaWan(QMainWindow, Ui_MainWindow):
 
         #seteo de valores
         self.setupUi(self)
-
-
-        #archivo csv
-        archivo_csv = "nodos.csv"
-        if os.path.isfile(archivo_csv):
-            self.df = pd.read_csv(archivo_csv, parse_dates = ["timestamp"]).drop_duplicates()
-            nodos = sorted(self.df["nodo"].unique())
-
-            #auto llenado del listado de nodos
-            self.comboBox.clear()
-            for nodo in nodos:
-                self.comboBox.addItem(str(nodo))
-
-        else:
-            #QMessageBox.critical(self, "error", "archivo csv inexistente")
-            self.df = None
-
 
         #grafica Rssi
         self.figure_Rssi = Figure(facecolor = '#FFFFFF')
@@ -68,12 +51,59 @@ class Sensores_LoRaWan(QMainWindow, Ui_MainWindow):
         layout_2.addWidget(NavigationToolbar2QT(self.canvas_bateria, self))
         layout_2.addWidget(self.canvas_bateria)
 
+        #Abrir y cerrar archivo CSV
+        self.actionAbrir_CSV.triggered.connect(self.abrir_csv)
+        self.toolButton.clicked.connect(self.abrir_csv)
+        self.actionCerrar.triggered.connect(self.close)
         self.pushButton.clicked.connect(self.Analizar)
         self.comboBox.currentTextChanged.connect(self.Analizar)
-        self.Analizar()
+
+        # Carga automática inicial si existe nodos.csv en la carpeta del proyecto
+        self.df = None
+        if os.path.isfile("nodos.csv"):
+            self.cargar_csv("nodos.csv")
+
+        #arranque de abrir y cerrar archivo CSV
+    def abrir_csv(self):
+        ruta, _ = QFileDialog.getOpenFileName(
+            self,
+            "Abrir archivo CSV",
+            "",
+            "Archivos CSV (*.csv);;Todos los archivos (*)"
+        )
+        if ruta:
+            self.cargar_csv(ruta)
+
+    def cargar_csv(self, ruta):
+        try:
+            df_nuevo = pd.read_csv(ruta, parse_dates=["timestamp"]).drop_duplicates()
+
+            columnas_requeridas = {"timestamp", "nodo", "rssi", "snr", "bateria", "contador"}
+            if not columnas_requeridas.issubset(df_nuevo.columns):
+                QMessageBox.warning(
+                    self,
+                    "Formato inválido",
+                    f"El archivo debe contener las columnas: {', '.join(sorted(columnas_requeridas))}"
+                )
+                return
+
+            self.df = df_nuevo
+            self.lineEdit.setText(os.path.basename(ruta))
+
+            nodos = sorted(self.df["nodo"].unique())
+            self.comboBox.blockSignals(True)
+            self.comboBox.clear()
+            for nodo in nodos:
+                self.comboBox.addItem(str(nodo))
+            self.comboBox.blockSignals(False)
+
+            self.statusBar().showMessage(f"Análisis completo: {len(nodos)} nodos procesados")
+            self.Analizar()
+
+        except Exception as error:
+            QMessageBox.critical(self, "Error al abrir CSV", f"No se pudo leer el archivo:\n{error}")
 
 
-    #modificacion de la barra de herramientas del grafico
     def Analizar(self):
 
 
