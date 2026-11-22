@@ -77,15 +77,3 @@ def bateria_minima(nodo_id):
     if len(baterias_sin_ceros)== 0:
         return 0.0
     return float(baterias_sin_ceros.min())
-
-
-    
-
-
-
-
-
-datos=Archivo("nodos.csv")
-lista_de_Nodos(datos)
-nodo=filtrar_nodo(datos,"N01")
-Promedio(nodo["snr"])
