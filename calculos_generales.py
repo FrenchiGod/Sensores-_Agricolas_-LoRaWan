@@ -60,8 +60,7 @@ def reinicios_por_nodo(nodo_id):
     total_de_reinicios=len(contador)
     return total_de_reinicios-1
 
-def baterias_bajas(nodo_id):
-    umbral_bateria = self.Bateria.value()
+def baterias_bajas(nodo_id, umbral_bateria):
     baterias_sin_ceros=nodo_id.loc[nodo_id["bateria"] != 0,"bateria"]
     baterias_por_bajo_del_umbral=baterias_sin_ceros < umbral_bateria 
     return baterias_por_bajo_del_umbral
@@ -77,3 +76,4 @@ def bateria_minima(nodo_id):
     if len(baterias_sin_ceros)== 0:
         return 0.0
     return float(baterias_sin_ceros.min())
+
