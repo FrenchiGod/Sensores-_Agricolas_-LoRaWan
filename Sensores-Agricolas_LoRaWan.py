@@ -38,7 +38,6 @@ class Sensores_LoRaWan(QMainWindow, Ui_MainWindow):
         self.figure_Rssi = Figure(facecolor = '#FFFFFF')
         self.canvas_Rssi = FiguresCanvas(self.figure_Rssi)
         self.ax_Rssi = self.figure_Rssi.add_subplot(111)
-
         layout_1 = QVBoxLayout(self.frame_Rssi)
         layout_1.setContentsMargins(0, 0, 0, 0)
         layout_1.addWidget(NavigationToolbar2QT(self.canvas_Rssi, self))
@@ -49,7 +48,6 @@ class Sensores_LoRaWan(QMainWindow, Ui_MainWindow):
         self.figure_bateria = Figure(facecolor = '#FFFFFF')
         self.canvas_bateria = FiguresCanvas(self.figure_bateria)
         self.ax_bateria=self.figure_bateria.add_subplot(111)
-
         layout_2 = QVBoxLayout(self.frame_Bateria)
         layout_2.setContentsMargins(0, 0, 0, 0)
         layout_2.addWidget(NavigationToolbar2QT(self.canvas_bateria, self))
@@ -61,11 +59,10 @@ class Sensores_LoRaWan(QMainWindow, Ui_MainWindow):
         self.actionCerrar.triggered.connect(self.close)
         self.pushButton.clicked.connect(self.Analizar)
         self.comboBox.currentTextChanged.connect(self.Analizar)
-
         self.df = None
 
-    #funcion que habre el archivo y corrobora que existe
 
+    #funcion que habre el archivo y corrobora que existe
     def abrir_csv(self):
         ruta, _ = QFileDialog.getOpenFileName(
             self,
@@ -97,6 +94,8 @@ class Sensores_LoRaWan(QMainWindow, Ui_MainWindow):
         except Exception as error:
             QMessageBox.critical(self, "Error al abrir CSV", f"No se pudo leer el archivo:\n{error}")
 
+
+    #acciones del boton analizar
     def Analizar(self):
         # corroborar si existe el archivo
         if self.df is None:
@@ -179,7 +178,6 @@ class Sensores_LoRaWan(QMainWindow, Ui_MainWindow):
         self.ax_Rssi.plot(df_grafico["timestamp"], df_grafico["rssi"], color="#6baed6", linewidth=1.0, label="RSSI")
         self.ax_Rssi.plot(df_grafico["timestamp"], df_grafico["rssi_movil"], color="orange", linewidth=2.0, label="Promedio móvil")
         self.ax_Rssi.axhline(y=umbral_rssi, color="red", linestyle="--", linewidth=1.5, label="Umbral")
-
         self.ax_Rssi.set_title(f"RSSI del nodo {nodo_lista} (dBm)", fontsize=10, fontweight="bold")
         self.ax_Rssi.set_ylabel("RSSI (dBm)")
         self.ax_Rssi.set_ylim(-125, -80)
