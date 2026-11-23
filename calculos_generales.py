@@ -72,32 +72,21 @@ def reinicios_por_nodo(nodo_id):
     #le restamos uno para evitar el de inicio
     total_de_reinicios=len(contador)
     return total_de_reinicios-1
+
 #se filtro mediciones corruptas 
+
 def baterias_filtradas(nodo_id):
     return nodo_id.loc[nodo_id["bateria"]!= 0,"bateria"].dropna()
 
-#calcualmos porcentaje de la bateria 
-def porcentaje_baterias_bajas(nodo_id, umbral_bateria):
-    baterias_filtrado=baterias_filtradas(nodo_id)
-    cantidad_de_lecturas = len(baterias_filtrado)
-    baterias_por_bajo_del_umbral=baterias_filtrado < umbral_bateria 
-    total_de_baterias_bajas=baterias_por_bajo_del_umbral.sum()
-    porcentaje = (total_de_baterias_bajas / cantidad_de_lecturas) * 100
-    return porcentaje 
-
 #funcion que permite acceder a las lecturas minimas 
+
+def porcentajes_bajos(lecturas, umbral):
+    valores_filtrados=lecturas.dropna()
+    cantidad_de_lecturas=len(valores_filtrados)
+    total_bajos=(valores_filtrados < umbral).sum()
+    return (total_bajos/cantidad_de_lecturas)*100
 
 def lectura_minima(lectura):
     lecturas_validas=lectura.dropna()
     return float(lecturas_validas.min())
-
-
-#calculamos el porcentaje de la cantidad de rssi
-
-def porcentaje_rssi_bajos(nodo_id, umbral_rssi):
-    cantidad_de_lecturas = len(nodo_id)
-    rssi_bajos =nodo_id["rssi"] < umbral_rssi
-    total_de_rssi_bajos=rssi_bajos.sum()
-    porcentaje = (total_de_rssi_bajos / cantidad_de_lecturas) * 100
-    return porcentaje
 

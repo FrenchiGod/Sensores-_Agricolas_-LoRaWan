@@ -5,8 +5,7 @@ from calculos_generales import(
     promedio_tramas_perdidas,
     tramas_perdidas,
     reinicios_por_nodo,
-    porcentaje_baterias_bajas,
-    porcentaje_rssi_bajos,
+    porcentajes_bajos,
     lectura_minima,
     baterias_filtradas
 )
@@ -47,12 +46,12 @@ def analizar_red(datos,umbral_rssi,umbral_snr,umbral_bateria):
         snr_promedio=Promedio(nodo_datos["snr"])
 
         #caidas drasticas de RSSI respecto al umbral
-        porcentaje_de_rssi_bajos=porcentaje_rssi_bajos(nodo_datos, umbral_rssi)
+        porcentaje_de_rssi_bajos=porcentajes_bajos(nodo_datos["rssi"], umbral_rssi)
 
         #bateria minima y porcentaje de la bateria que esta bajo umbral necesario para luego cargar en en el informe cual es el peor problema
 
         bateria_baja=lectura_minima(baterias_filtradas(nodo_datos))
-        porcentaje_de_baterias_bajas_total=porcentaje_baterias_bajas(nodo_datos, umbral_bateria)
+        porcentaje_de_baterias_bajas_total=porcentajes_bajos(baterias_filtradas(nodo_datos), umbral_bateria)
 
         #conteo de tramas perdidas y reincios
 
