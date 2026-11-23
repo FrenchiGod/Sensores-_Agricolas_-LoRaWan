@@ -77,3 +77,21 @@ def bateria_minima(nodo_id):
         return 0.0
     return float(baterias_sin_ceros.min())
 
+#funciones para detectar rssi muy bajos
+def rssi_minimo(nodo_id):
+    if len(nodo_id) == 0:
+        return 0.0
+    return float(nodo_id["rssi"].min())
+
+def rssi_bajos(nodo_id, umbral_rssi):
+    rssi_por_bajo_del_umbral = nodo_id["rssi"] < umbral_rssi
+    return rssi_por_bajo_del_umbral
+
+def porcentaje_rssi_bajos(nodo_id, rssi_bajos):
+    cantidad_de_lecturas = len(nodo_id)
+    if cantidad_de_lecturas == 0:
+        return 0.0
+    total_de_rssi_bajos = rssi_bajos.sum()
+    porcentaje = (total_de_rssi_bajos / cantidad_de_lecturas) * 100
+    return porcentaje
+

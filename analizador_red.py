@@ -7,7 +7,10 @@ from calculos_generales import(
     reinicios_por_nodo,
     baterias_bajas,
     porcentaje_baterias_bajas,
-    bateria_minima
+    bateria_minima,
+    rssi_minimo,
+    rssi_bajos,
+    porcentaje_rssi_bajos
 )
 #estado de los nodos 
 
@@ -48,6 +51,11 @@ def analizar_red(datos,umbral_rssi,umbral_snr,umbral_bateria):
         rssi_promedio=Promedio(nodo_datos["rssi"])
         snr_promedio=Promedio(nodo_datos["snr"])
 
+        #caidas drasticas de RSSI respecto al umbral
+        rssi_min=rssi_minimo(nodo_datos)
+        cantidad_rssi_bajos=rssi_bajos(nodo_datos, umbral_rssi)
+        porcentaje_de_rssi_bajos=porcentaje_rssi_bajos(nodo_datos, cantidad_rssi_bajos)
+
         #bateria minima y porcentaje de la bateria que esta bajo umbral
 
         bateria_baja=bateria_minima(nodo_datos)
@@ -73,6 +81,8 @@ def analizar_red(datos,umbral_rssi,umbral_snr,umbral_bateria):
             problemas.append(f"• {nodo}: {reinicios} reinicio")
         if round(rssi_promedio, 2) < round(umbral_rssi, 2):
             problemas.append(f"• {nodo}: RSSI bajo ({rssi_promedio:.0f} dBm)")
+        elif round(rssi_min, 2) <= round(umbral_rssi - 5, 2) or porcentaje_de_rssi_bajos > 5.0:
+            problemas.append(f"• {nodo}: caída drástica de RSSI ({rssi_min:.1f} dBm)")
         if round(snr_promedio, 2) < round(umbral_snr, 2):
             problemas.append(f"• {nodo}: SNR bajo ({snr_promedio:.1f} dB)")
 
