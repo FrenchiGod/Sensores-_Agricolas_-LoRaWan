@@ -72,22 +72,23 @@ def reinicios_por_nodo(nodo_id):
     #le restamos uno para evitar el de inicio
     total_de_reinicios=len(contador)
     return total_de_reinicios-1
+#se filtro mediciones corruptas 
+def baterias_filtradas(nodo_id):
+    return nodo_id.loc[nodo_id["bateria"]!= 0,"bateria"].dropna()
 
 #calcualmos porcentaje de la bateria 
 def porcentaje_baterias_bajas(nodo_id, umbral_bateria):
-    cantidad_de_lecturas = len(nodo_id)
-
-    #evitamos las baterias que tengan valor cero
-    baterias_sin_ceros=nodo_id.loc[nodo_id["bateria"] != 0,"bateria"]
-    baterias_por_bajo_del_umbral=baterias_sin_ceros < umbral_bateria 
+    baterias_filtrado=baterias_filtradas(nodo_id)
+    cantidad_de_lecturas = len(baterias_filtradas)
+    baterias_por_bajo_del_umbral=baterias_filtrado < umbral_bateria 
     total_de_baterias_bajas=baterias_por_bajo_del_umbral.sum()
     porcentaje = (total_de_baterias_bajas / cantidad_de_lecturas) * 100
     return porcentaje 
 
 
-#sacamos cual es la bateria minima
+#sacamos cual es la bateria minima y filtramos las que valgan cero 
 def bateria_minima(nodo_id):
-    baterias_sin_ceros=nodo_id.loc[nodo_id["bateria"]!= 0,"bateria"]
+    baterias_sin_ceros=baterias_filtradas(nodo_id)
     if len(baterias_sin_ceros)== 0:
         return 0.0
     return float(baterias_sin_ceros.min())
