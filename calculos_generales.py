@@ -5,9 +5,9 @@ import sys
 import os
 import pandas as pd
 
-
+#comprobar si existe el archivo ademas de eliminar las lineas repetidas 
+#con dorp_duplicates
 def Archivo(nombre):
-    #comprobar si existe el archivo ademas de eliminar las lineas repetidas con dorp_duplicates
     if os.path.isfile(nombre):
         datos = pd.read_csv(nombre, parse_dates = ["timestamp"]).drop_duplicates()
         return datos
@@ -29,22 +29,32 @@ def Promedio(columna):
     return mW_dbm
 
 
-#filtra el nodo elejido, ademas de que el sort_values permite ordenar de forma cronologica
+#filtra el nodo elejido, ademas de que el sort_values permite ordenar 
+#de forma cronologica
 def filtrar_nodo(datos, id_nodo):
     nodo = datos[datos["nodo"] == id_nodo].sort_values("timestamp")
     return nodo
 
+
+#calcular las tramas perdidas
 def tramas_perdidas(nodo_id):
-    #calculamos con la funcion incluida en pandas la diferencia entre cada contador, si al contador del nodo se saltea un conteo este calcula cuantas tramas se salto
+    #calculamos con la funcion incluida en pandas la diferencia entre cada contador,
+    #si al contador del nodo se saltea un conteo este calcula cuantas tramas se salto
     diferencia_tramas_entre_nodos = nodo_id["contador"].diff()
+    
     #nos da el valor de cada trama perdida en cada medicion
     perdidas_por_salto = diferencia_tramas_entre_nodos-1
     perdida_total = perdidas_por_salto[perdidas_por_salto > 0].sum()
-    #cuando el nodo se reinicia y empieza a contar, para esa trama que se perdio realizamos lo siguiente.
-    tramas_perdidas_en_reinicios = nodo_id.loc[diferencia_tramas_entre_nodos<0, "contador"]
+    
+    #cuando el nodo se reinicia y empieza a contar, para esa trama que se perdio 
+    #realizamos lo siguiente.
+    tramas_perdidas_en_reinicios = nodo_id.loc[diferencia_tramas_entre_nodos<0,
+                                               "contador"]
     perdida_total += (tramas_perdidas_en_reinicios[tramas_perdidas_en_reinicios>0].sum())
     return perdida_total
 
+
+#calcular el promedio de las tramas perdidad
 def promedio_tramas_perdidas(nodo_id, tramas_perdidas):
     total_sin_perdidas=len(nodo_id) + tramas_perdidas
     #condicion en caso de que no existan perdidas
@@ -54,29 +64,40 @@ def promedio_tramas_perdidas(nodo_id, tramas_perdidas):
         porcentaje = 0.0
     return porcentaje
 
+
+#contamos los reincios del nodo
 def reinicios_por_nodo(nodo_id):
-    #guardamos los valores que sean iguales a cero para saber cuando volvio a empezar a contar
+    #guardamos los valores que sean iguales a cero para saber cuando volvio a 
+    #empezar a contar
     contador = nodo_id[nodo_id["contador" ] == 0]
+
     #le restamos uno para evitar el de inicio
     total_de_reinicios = len(contador)
     return total_de_reinicios-1
 
+
+#contador de baterias bajas 
 def baterias_bajas(nodo_id, umbral_bateria):
     baterias_sin_ceros = nodo_id.loc[nodo_id["bateria"] != 0,"bateria"]
     baterias_por_bajo_del_umbral=baterias_sin_ceros < umbral_bateria 
     return baterias_por_bajo_del_umbral
 
+
+#calcualmos porcentaje de la bateria 
 def porcentaje_baterias_bajas(nodo_id, baterias_bajas):
     cantidad_de_lecturas = len(nodo_id)
     tota_de_baterias_bajas = baterias_bajas.sum()
     porcentaje = (tota_de_baterias_bajas / cantidad_de_lecturas) * 100
     return porcentaje 
 
+
+#sacamos cual es la bateria minima
 def bateria_minima(nodo_id):
     baterias_sin_ceros = nodo_id.loc[nodo_id["bateria"] != 0, "bateria"]
     if len(baterias_sin_ceros) == 0:
         return 0.0
     return float(baterias_sin_ceros.min())
+
 
 #funciones para detectar rssi muy bajos
 def rssi_minimo(nodo_id):
@@ -84,10 +105,14 @@ def rssi_minimo(nodo_id):
         return 0.0
     return float(nodo_id["rssi"].min())
 
+
+#sacamos cual es el rssi minimo
 def rssi_bajos(nodo_id, umbral_rssi):
     rssi_por_bajo_del_umbral = nodo_id["rssi"] < umbral_rssi
     return rssi_por_bajo_del_umbral
 
+
+#calculamos el porcentaje de la cantidad de rssi
 def porcentaje_rssi_bajos(nodo_id, rssi_bajos):
     cantidad_de_lecturas = len(nodo_id)
     if cantidad_de_lecturas == 0:
