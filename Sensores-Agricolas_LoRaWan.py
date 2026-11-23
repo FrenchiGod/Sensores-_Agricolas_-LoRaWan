@@ -62,12 +62,10 @@ class Sensores_LoRaWan(QMainWindow, Ui_MainWindow):
         self.pushButton.clicked.connect(self.Analizar)
         self.comboBox.currentTextChanged.connect(self.Analizar)
 
-        # Carga automática inicial si existe nodos.csv en la carpeta del proyecto
         self.df = None
-        if os.path.isfile("nodos.csv"):
-            self.cargar_csv("nodos.csv")
 
-        #arranque de abrir y cerrar archivo CSV
+    #funcion que habre el archivo y corrobora que existe
+
     def abrir_csv(self):
         ruta, _ = QFileDialog.getOpenFileName(
             self,
@@ -75,23 +73,12 @@ class Sensores_LoRaWan(QMainWindow, Ui_MainWindow):
             "",
             "Archivos CSV (*.csv);;Todos los archivos (*)"
         )
-        if ruta:
-            self.cargar_csv(ruta)
+        if not ruta:
+            return
 
-    #funcion que carga el archivo y corrobora que sea de formato valido
-    def cargar_csv(self, ruta):
         try:
             df_nuevo = Archivo(ruta)
-
-            #linea que verifica que esten las columnas requeridas
-            
-            columnas_requeridas = {"timestamp", "nodo", "rssi", "snr", "bateria", "contador"}
-            if not columnas_requeridas.issubset(df_nuevo.columns):
-                QMessageBox.warning(
-                    self,
-                    "Formato inválido",
-                    f"El archivo debe contener las columnas: {', '.join(sorted(columnas_requeridas))}"
-                )
+            if df_nuevo is None:
                 return
 
             self.df = df_nuevo
