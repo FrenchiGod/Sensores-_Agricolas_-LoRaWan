@@ -73,19 +73,15 @@ def reinicios_por_nodo(nodo_id):
     total_de_reinicios=len(contador)
     return total_de_reinicios-1
 
+#calcualmos porcentaje de la bateria 
+def porcentaje_baterias_bajas(nodo_id, umbral_bateria):
+    cantidad_de_lecturas = len(nodo_id)
 
-#contador de baterias bajas 
-def baterias_bajas(nodo_id, umbral_bateria):
+    #evitamos las baterias que tengan valor cero
     baterias_sin_ceros=nodo_id.loc[nodo_id["bateria"] != 0,"bateria"]
     baterias_por_bajo_del_umbral=baterias_sin_ceros < umbral_bateria 
-    return baterias_por_bajo_del_umbral
-
-
-#calcualmos porcentaje de la bateria 
-def porcentaje_baterias_bajas(nodo_id, baterias_bajas):
-    cantidad_de_lecturas = len(nodo_id)
-    tota_de_baterias_bajas = baterias_bajas.sum()
-    porcentaje = (tota_de_baterias_bajas / cantidad_de_lecturas) * 100
+    total_de_baterias_bajas=baterias_por_bajo_del_umbral.sum()
+    porcentaje = (total_de_baterias_bajas / cantidad_de_lecturas) * 100
     return porcentaje 
 
 
