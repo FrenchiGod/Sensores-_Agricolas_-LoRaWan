@@ -59,7 +59,7 @@ def analizar_red(datos,umbral_rssi,umbral_snr,umbral_bateria):
         porcentaje_de_perdidas=promedio_tramas_perdidas(nodo_datos,perdidas)
         reinicios=reinicios_por_nodo(nodo_datos)
 
-        #estado del nodo y cual es su peor caso o error importante
+        #estado del nodo 
 
         estado=estado_del_nodo(porcentaje_de_perdidas,porcentaje_de_baterias_bajas_total, reinicios)
 
