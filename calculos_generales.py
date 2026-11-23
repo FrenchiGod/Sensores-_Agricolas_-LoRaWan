@@ -1,12 +1,13 @@
 import numpy as np
 import matplotlib
 import sys 
+#libreria que corrobora las rutas del archivo
 import os
 import pandas as pd
 
 
 def Archivo(nombre):
-    #comprobar si existe el archivo
+    #comprobar si existe el archivo ademas de eliminar las lineas repetidas con dorp_duplicates
     if os.path.isfile(nombre):
         datos = pd.read_csv(nombre, parse_dates = ["timestamp"]).drop_duplicates()
         return datos

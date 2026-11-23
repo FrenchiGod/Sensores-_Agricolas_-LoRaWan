@@ -78,10 +78,13 @@ class Sensores_LoRaWan(QMainWindow, Ui_MainWindow):
         if ruta:
             self.cargar_csv(ruta)
 
+    #funcion que carga el archivo y corrobora que sea de formato valido
     def cargar_csv(self, ruta):
         try:
-            df_nuevo = pd.read_csv(ruta, parse_dates=["timestamp"]).drop_duplicates()
+            df_nuevo = Archivo(ruta)
 
+            #linea que verifica que esten las columnas requeridas
+            
             columnas_requeridas = {"timestamp", "nodo", "rssi", "snr", "bateria", "contador"}
             if not columnas_requeridas.issubset(df_nuevo.columns):
                 QMessageBox.warning(
