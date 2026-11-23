@@ -1,7 +1,7 @@
 import numpy as np
-import matplotlib
-import sys 
+
 #libreria que corrobora las rutas del archivo
+
 import os
 import pandas as pd
 
@@ -11,9 +11,7 @@ def Archivo(nombre):
     if os.path.isfile(nombre):
         datos = pd.read_csv(nombre, parse_dates = ["timestamp"]).drop_duplicates()
         return datos
-    else:
-        return 
-    
+
 #Funcion para obtener la catidad de nodos existentes
 
 def lista_de_Nodos(datos):

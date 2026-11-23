@@ -15,13 +15,8 @@ from calculos_generales import(
 #estado de los nodos 
 
 def estado_del_nodo(porcentaje_perdidas, porcentaje_baterias, porcentaje_reinicios):
-    problemas_nodo = {
-        "Tramas perdidas": porcentaje_perdidas,
-        "Batería baja": porcentaje_baterias,
-        "Reinicios": porcentaje_reinicios
-    }
-    peor_problema = max(problemas_nodo, key=problemas_nodo.get)
-    peor_valor = problemas_nodo[peor_problema]
+
+    peor_valor = max(porcentaje_baterias,porcentaje_perdidas,porcentaje_reinicios)
 
     if peor_valor < 2.5:
         estado = "Normal"
@@ -31,7 +26,7 @@ def estado_del_nodo(porcentaje_perdidas, porcentaje_baterias, porcentaje_reinici
     else:
         estado = "critico"
 
-    return estado, peor_problema, peor_valor
+    return estado
 
 #analizar red
 
@@ -52,6 +47,7 @@ def analizar_red(datos,umbral_rssi,umbral_snr,umbral_bateria):
         snr_promedio=Promedio(nodo_datos["snr"])
 
         #caidas drasticas de RSSI respecto al umbral
+
         rssi_min=rssi_minimo(nodo_datos)
         cantidad_rssi_bajos=rssi_bajos(nodo_datos, umbral_rssi)
         porcentaje_de_rssi_bajos=porcentaje_rssi_bajos(nodo_datos, cantidad_rssi_bajos)
@@ -70,7 +66,7 @@ def analizar_red(datos,umbral_rssi,umbral_snr,umbral_bateria):
         porcentaje_de_perdidas=promedio_tramas_perdidas(nodo_datos,perdidas)
         reinicios=reinicios_por_nodo(nodo_datos)
 
-       #estado del nodo y cual es su peor caso o error importante
+        #estado del nodo y cual es su peor caso o error importante
 
         estado, peor_problema , peor_valor=estado_del_nodo(porcentaje_de_perdidas,porcentaje_de_baterias_bajas_total, reinicios)
 
