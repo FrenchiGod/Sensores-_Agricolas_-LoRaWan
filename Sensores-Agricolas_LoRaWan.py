@@ -20,10 +20,6 @@ from ui_sensores_LoRaWan import Ui_MainWindow
 from PySide6.QtWidgets import QTableWidgetItem
 from PySide6.QtGui import QColor
 
-#importamos para graficar 
-import matplotlib.dates as mdates
-from matplotlib.ticker import FuncFormatter
-
 #importamos las funciones necesarias de calculos_generales y las de analizador 
 #de red
 from calculos_generales import Archivo, lista_de_Nodos, filtrar_nodo
@@ -183,11 +179,6 @@ class Sensores_LoRaWan(QMainWindow, Ui_MainWindow):
                                                           min_periods=1).mean()
         df_grafico["rssi_movil"] = 10 * np.log10(promedio_movil_mw)
 
-
-        # filtramos las baterias que no sean cero
-        df_bateria = df_grafico[df_grafico["bateria"] > 0]
-
-
         # limpiamos los ejes para que cuando se actualice cambie
         self.ax_Rssi.clear()
         self.ax_bateria.clear()
@@ -223,7 +214,7 @@ class Sensores_LoRaWan(QMainWindow, Ui_MainWindow):
 
 
         # grafica de la bateria
-        self.ax_bateria.plot(df_bateria["timestamp"], df_bateria["bateria"], \
+        self.ax_bateria.plot(df_grafico["timestamp"], df_grafico["bateria"], \
                              color="green", linewidth=1.8, label="Batería")
         self.ax_bateria.axhline(y=umbral_bateria, color="red", linestyle="--", \
                                 linewidth=1.5, label="Umbral")
@@ -232,7 +223,7 @@ class Sensores_LoRaWan(QMainWindow, Ui_MainWindow):
         self.ax_bateria.set_ylabel("Batería (V)")
         self.ax_bateria.set_ylim(2.8, 3.8)
         self.ax_bateria.set_yticks([2.8, 3.3, 3.8])
-        self.ax_bateria.set_xlim(df_bateria["timestamp"].min(), df_bateria["timestamp"].\
+        self.ax_bateria.set_xlim(df_grafico["timestamp"].min(), df_grafico["timestamp"].\
                                  max())
         self.ax_bateria.set_xticks(fechas_dias)
         self.ax_bateria.set_xticklabels(etiquetas_dias)
