@@ -119,7 +119,7 @@ class Sensores_LoRaWan(QMainWindow, Ui_MainWindow):
             estado = datos_fila[5]
             if estado == "critico":
                 bg = QColor("#f8d7da")
-                fg = QColor("#842029")
+                fg = QColor("red")
             elif estado == "alerta":
                 bg = QColor("#fff3cd")
                 fg = QColor("#664d03")
