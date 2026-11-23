@@ -26,24 +26,16 @@ def Promedio(columna):
     mW_dbm=10*np.log10(Promedio_en_mW)
     return mW_dbm
 
-<<<<<<< HEAD
 
 #filtra el nodo elejido, ademas de que el sort_values permite ordenar 
 #de forma cronologica
 def filtrar_nodo(datos, id_nodo):
     nodo = datos[datos["nodo"] == id_nodo].sort_values("timestamp")
-=======
-#filtra el nodo elejido, ademas de que el sort_values permite ordenar de forma cronologica
-
-def filtrar_nodo(datos,id_nodo):
-    nodo=datos[datos["nodo"]==id_nodo].sort_values("timestamp")
->>>>>>> 0f212932883c8a38d19e38dbcd53b0dda02de27e
     return nodo
 
 
 #calcular las tramas perdidas
 def tramas_perdidas(nodo_id):
-<<<<<<< HEAD
     #calculamos con la funcion incluida en pandas la diferencia entre cada contador,
     #si al contador del nodo se saltea un conteo este calcula cuantas tramas se salto
     diferencia_tramas_entre_nodos = nodo_id["contador"].diff()
@@ -63,20 +55,6 @@ def tramas_perdidas(nodo_id):
 #calcular el promedio de las tramas perdidad
 def promedio_tramas_perdidas(nodo_id, tramas_perdidas):
     total_sin_perdidas=len(nodo_id) + tramas_perdidas
-=======
-    #calculamos con la funcion incluida en pandas la diferencia entre cada contador, si al contador del nodo se saltea un conteo este calcula cuantas tramas se salto
-    diferencia_tramas_entre_nodos=nodo_id["contador"].diff()
-    #nos da el valor de cada trama perdida en cada medicion
-    perdidas_por_salto=diferencia_tramas_entre_nodos-1
-    perdida_total=perdidas_por_salto[perdidas_por_salto > 0].sum()
-    #cuando el nodo se reinicia y empieza a contar, para esa trama que se perdio realizamos lo siguiente.
-    tramas_perdidas_en_reinicios=nodo_id.loc[diferencia_tramas_entre_nodos<0, "contador"]
-    perdida_total+=(tramas_perdidas_en_reinicios[tramas_perdidas_en_reinicios>0].sum())
-    return perdida_total
-
-def promedio_tramas_perdidas(nodo_id,tramas_perdidas):
-    total_sin_perdidas=len(nodo_id)+tramas_perdidas
->>>>>>> 0f212932883c8a38d19e38dbcd53b0dda02de27e
     #condicion en caso de que no existan perdidas
     if total_sin_perdidas > 0:
         porcentaje=(tramas_perdidas/total_sin_perdidas)*100.0
@@ -87,15 +65,10 @@ def promedio_tramas_perdidas(nodo_id,tramas_perdidas):
 
 #contamos los reincios del nodo
 def reinicios_por_nodo(nodo_id):
-<<<<<<< HEAD
     #guardamos los valores que sean iguales a cero para saber cuando volvio a 
     #empezar a contar
     contador = nodo_id[nodo_id["contador" ] == 0]
 
-=======
-    #guardamos los valores que sean iguales a cero para saber cuando volvio a empezar a contar
-    contador=nodo_id[nodo_id["contador" ]== 0]
->>>>>>> 0f212932883c8a38d19e38dbcd53b0dda02de27e
     #le restamos uno para evitar el de inicio
     total_de_reinicios=len(contador)
     return total_de_reinicios-1
@@ -107,19 +80,12 @@ def baterias_bajas(nodo_id, umbral_bateria):
     baterias_por_bajo_del_umbral=baterias_sin_ceros < umbral_bateria 
     return baterias_por_bajo_del_umbral
 
-<<<<<<< HEAD
 
 #calcualmos porcentaje de la bateria 
 def porcentaje_baterias_bajas(nodo_id, baterias_bajas):
     cantidad_de_lecturas = len(nodo_id)
     tota_de_baterias_bajas = baterias_bajas.sum()
     porcentaje = (tota_de_baterias_bajas / cantidad_de_lecturas) * 100
-=======
-def porcentaje_baterias_bajas(nodo_id,baterias_bajas):
-    cantidad_de_lecturas=len(nodo_id)
-    tota_de_baterias_bajas=baterias_bajas.sum()
-    porcentaje=(tota_de_baterias_bajas/cantidad_de_lecturas)*100
->>>>>>> 0f212932883c8a38d19e38dbcd53b0dda02de27e
     return porcentaje 
 
 
@@ -137,19 +103,14 @@ def rssi_minimo(nodo_id):
         return 0.0
     return float(nodo_id["rssi"].min())
 
-
-#sacamos cual es el rssi minimo
-def rssi_bajos(nodo_id, umbral_rssi):
-    rssi_por_bajo_del_umbral = nodo_id["rssi"] < umbral_rssi
-    return rssi_por_bajo_del_umbral
-
-
 #calculamos el porcentaje de la cantidad de rssi
-def porcentaje_rssi_bajos(nodo_id, rssi_bajos):
+
+def porcentaje_rssi_bajos(nodo_id, umbral_rssi):
     cantidad_de_lecturas = len(nodo_id)
     if cantidad_de_lecturas == 0:
         return 0.0
-    total_de_rssi_bajos = rssi_bajos.sum()
+    rssi_bajos =nodo_id["rssi"] < umbral_rssi
+    total_de_rssi_bajos=rssi_bajos.sum()
     porcentaje = (total_de_rssi_bajos / cantidad_de_lecturas) * 100
     return porcentaje
 
