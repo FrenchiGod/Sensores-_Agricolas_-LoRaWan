@@ -79,33 +79,23 @@ def baterias_filtradas(nodo_id):
 #calcualmos porcentaje de la bateria 
 def porcentaje_baterias_bajas(nodo_id, umbral_bateria):
     baterias_filtrado=baterias_filtradas(nodo_id)
-    cantidad_de_lecturas = len(baterias_filtradas)
+    cantidad_de_lecturas = len(baterias_filtrado)
     baterias_por_bajo_del_umbral=baterias_filtrado < umbral_bateria 
     total_de_baterias_bajas=baterias_por_bajo_del_umbral.sum()
     porcentaje = (total_de_baterias_bajas / cantidad_de_lecturas) * 100
     return porcentaje 
 
+#funcion que permite acceder a las lecturas minimas 
 
-#sacamos cual es la bateria minima y filtramos las que valgan cero 
-def bateria_minima(nodo_id):
-    baterias_sin_ceros=baterias_filtradas(nodo_id)
-    if len(baterias_sin_ceros)== 0:
-        return 0.0
-    return float(baterias_sin_ceros.min())
+def lectura_minima(lectura):
+    lecturas_validas=lectura.dropna()
+    return float(lecturas_validas.min())
 
-
-#funciones para detectar rssi muy bajos
-def rssi_minimo(nodo_id):
-    if len(nodo_id) == 0:
-        return 0.0
-    return float(nodo_id["rssi"].min())
 
 #calculamos el porcentaje de la cantidad de rssi
 
 def porcentaje_rssi_bajos(nodo_id, umbral_rssi):
     cantidad_de_lecturas = len(nodo_id)
-    if cantidad_de_lecturas == 0:
-        return 0.0
     rssi_bajos =nodo_id["rssi"] < umbral_rssi
     total_de_rssi_bajos=rssi_bajos.sum()
     porcentaje = (total_de_rssi_bajos / cantidad_de_lecturas) * 100
