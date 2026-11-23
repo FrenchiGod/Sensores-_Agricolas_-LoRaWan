@@ -1,3 +1,4 @@
+#programa de calculos generales de sensores-agricolas-LoRaWAN
 import numpy as np
 
 #libreria que corrobora las rutas del archivo
@@ -73,6 +74,7 @@ def reinicios_por_nodo(nodo_id):
     total_de_reinicios=len(contador)
     return total_de_reinicios-1
 
+<<<<<<< HEAD
 #se filtro mediciones corruptas 
 
 def baterias_filtradas(nodo_id):
@@ -90,3 +92,51 @@ def lectura_minima(lectura):
     lecturas_validas=lectura.dropna()
     return float(lecturas_validas.min())
 
+=======
+
+#contador de baterias bajas 
+def baterias_bajas(nodo_id, umbral_bateria):
+    baterias_sin_ceros=nodo_id.loc[nodo_id["bateria"] != 0,"bateria"]
+    baterias_por_bajo_del_umbral=baterias_sin_ceros < umbral_bateria 
+    return baterias_por_bajo_del_umbral
+
+
+#calcualmos porcentaje de la bateria 
+def porcentaje_baterias_bajas(nodo_id, baterias_bajas):
+    cantidad_de_lecturas = len(nodo_id)
+    tota_de_baterias_bajas = baterias_bajas.sum()
+    porcentaje = (tota_de_baterias_bajas / cantidad_de_lecturas) * 100
+    return porcentaje 
+
+
+#sacamos cual es la bateria minima
+def bateria_minima(nodo_id):
+    baterias_sin_ceros=nodo_id.loc[nodo_id["bateria"]!= 0,"bateria"]
+    if len(baterias_sin_ceros)== 0:
+        return 0.0
+    return float(baterias_sin_ceros.min())
+
+
+#funciones para detectar rssi muy bajos
+def rssi_minimo(nodo_id):
+    if len(nodo_id) == 0:
+        return 0.0
+    return float(nodo_id["rssi"].min())
+
+
+#sacamos cual es el rssi minimo
+def rssi_bajos(nodo_id, umbral_rssi):
+    rssi_por_bajo_del_umbral = nodo_id["rssi"] < umbral_rssi
+    return rssi_por_bajo_del_umbral
+
+
+#calculamos el porcentaje de la cantidad de rssi
+def porcentaje_rssi_bajos(nodo_id, rssi_bajos):
+    cantidad_de_lecturas = len(nodo_id)
+    if cantidad_de_lecturas == 0:
+        return 0.0
+    total_de_rssi_bajos = rssi_bajos.sum()
+    porcentaje = (total_de_rssi_bajos / cantidad_de_lecturas) * 100
+    return porcentaje
+
+>>>>>>> cb386b413ea060488f1f4982fcd1f853a76ea7bb
