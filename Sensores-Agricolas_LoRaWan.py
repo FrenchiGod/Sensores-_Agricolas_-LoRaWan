@@ -151,9 +151,6 @@ class Sensores_LoRaWan(QMainWindow, Ui_MainWindow):
 
         # cargamos los datos del nodo elegido a graficar
         df_grafico = filtrar_nodo(self.df, nodo_lista).copy()
-        if df_grafico.empty:
-            return
-
 
         # agrupamos los valores por hora para que no sea cada 10 min
         fin = df_grafico["timestamp"].max()
