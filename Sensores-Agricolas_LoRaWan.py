@@ -22,7 +22,7 @@ from PySide6.QtGui import QColor
 
 #importamos las funciones necesarias de calculos_generales y las de analizador 
 #de red
-from calculos_generales import Archivo, lista_de_Nodos, filtrar_nodo
+from calculos_generales import Archivo, lista_de_Nodos, filtrar_nodo, Promedio
 from analizador_red import analizar_red
 
 
@@ -166,18 +166,18 @@ class Sensores_LoRaWan(QMainWindow, Ui_MainWindow):
         df_grafico = df_grafico[df_grafico["timestamp"] >= inicio].copy()
 
 
-        # agrupamos por hora (pasando RSSI a mW para promediar bien)
+        # agrupamos por hora 
         df_grafico.loc[df_grafico["bateria"] == 0, "bateria"] = np.nan
-        df_grafico["rssi_mw"] = 10 ** (df_grafico["rssi"] / 10)
-        df_grafico = df_grafico.set_index("timestamp")[["rssi_mw", "bateria"]].\
-            resample("1h").mean().reset_index()
-        df_grafico["rssi"] = 10 * np.log10(df_grafico["rssi_mw"])
+        df_grafico = (
+                    df_grafico.set_index("timestamp")
+                      .resample("1h")
+                      .agg({"rssi":Promedio,"bateria":"mean"})
+                      .reset_index()
+                    )
 
 
         # promedio movil de la ventana
-        promedio_movil_mw = df_grafico["rssi_mw"].rolling(window=Ventana, \
-                                                          min_periods=1).mean()
-        df_grafico["rssi_movil"] = 10 * np.log10(promedio_movil_mw)
+        df_grafico["rssi_movil"] = df_grafico["rssi"].rolling(window=Ventana, min_periods=1).apply(Promedio)
 
         # limpiamos los ejes para que cuando se actualice cambie
         self.ax_Rssi.clear()
