@@ -105,10 +105,6 @@ class Sensores_LoRaWan(QMainWindow, Ui_MainWindow):
 
     #acciones del boton analizar
     def Analizar(self):
-        # corroborar si existe el archivo
-        if self.df is None:
-            return
-
 
         # accede a los elementos
         nodo_lista = self.comboBox.currentText()
