@@ -75,9 +75,8 @@ class Sensores_LoRaWan(QMainWindow, Ui_MainWindow):
             "Abrir archivo CSV",
             "",
             "Archivos CSV (*.csv);;Todos los archivos (*)"
+            
         )
-        if not ruta:
-            return
 
         try:
             df_nuevo = Archivo(ruta)
