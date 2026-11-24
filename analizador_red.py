@@ -12,17 +12,16 @@ from calculos_generales import(
 
 #estado de los nodos 
 
-def estado_del_nodo(porcentaje_perdidas, porcentaje_baterias, porcentaje_reinicios):
+def estado_del_nodo(porcentaje_perdidas, porcentaje_baterias, porcentaje_reinicios,Porcentaje_snr,porcentaje_rssi):
 
-    peor_valor = max(porcentaje_baterias,porcentaje_perdidas,porcentaje_reinicios)
+    peor_valor = max(porcentaje_baterias,porcentaje_perdidas,porcentaje_reinicios,Porcentaje_snr,porcentaje_rssi)
 
-    if peor_valor < 2.5:
-        estado = "Normal"
-        peor_problema = "Ninguno"
-    elif peor_valor <= 7.5:
+    if peor_valor > 7.5:
+        estado = "critico"
+    elif peor_valor >= 2.5:
         estado = "alerta"
     else:
-        estado = "critico"
+        estado = "Normal"
 
     return estado
 
@@ -42,6 +41,7 @@ def analizar_red(datos,umbral_rssi,umbral_snr,umbral_bateria):
         #promedios del nodo actual
 
         rssi_min=lectura_minima(nodo_datos["rssi"])
+        snr_min=lectura_minima(nodo_datos["snr"])
         rssi_promedio=Promedio(nodo_datos["rssi"])
         snr_promedio=Promedio(nodo_datos["snr"])
 
@@ -58,10 +58,11 @@ def analizar_red(datos,umbral_rssi,umbral_snr,umbral_bateria):
         perdidas=tramas_perdidas(nodo_datos)
         porcentaje_de_perdidas=promedio_tramas_perdidas(nodo_datos,perdidas)
         reinicios=reinicios_por_nodo(nodo_datos)
-
+        porcentaje_de_rssi_bajos=porcentajes_bajos(nodo_datos["rssi"],umbral_rssi)
+        porcentaje_de_srn_bajos=porcentajes_bajos(nodo_datos["snr"],umbral_snr)
         #estado del nodo 
 
-        estado=estado_del_nodo(porcentaje_de_perdidas,porcentaje_de_baterias_bajas_total, reinicios)
+        estado=estado_del_nodo(porcentaje_de_perdidas,porcentaje_de_baterias_bajas_total, reinicios,porcentaje_de_rssi_bajos,porcentaje_de_srn_bajos)
 
         # Acumular lineas para el informe en texto plano
         if round(bateria_baja, 2) < round(umbral_bateria, 2):
@@ -74,7 +75,8 @@ def analizar_red(datos,umbral_rssi,umbral_snr,umbral_bateria):
             problemas.append(f"• {nodo}: caída drástica de RSSI ({rssi_min:.1f} dBm)")
         if round(snr_promedio, 2) < round(umbral_snr, 2):
             problemas.append(f"• {nodo}: SNR bajo ({snr_promedio:.1f} dB)")
-
+        elif round(snr_min, 2) <= round(umbral_snr - 5 ,2) or porcentaje_de_srn_bajos > 5.0:
+            problemas.append(f"• {nodo}: SNR bajo ({snr_min:.1f}dB)") 
         if perdidas > 0:
             lista_perdidas.append(f"• {nodo}: {perdidas} tramas perdidas ({porcentaje_de_perdidas:.1f}%)")
 

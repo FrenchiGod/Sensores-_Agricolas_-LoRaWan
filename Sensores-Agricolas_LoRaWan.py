@@ -13,7 +13,6 @@ from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FiguresCanvas
 from matplotlib.figure import Figure
 from PySide6.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QFileDialog, \
     QMessageBox
-from PySide6.QtCore import QSize
 
 #importamos la interfaz grafica
 from ui_sensores_LoRaWan import Ui_MainWindow
