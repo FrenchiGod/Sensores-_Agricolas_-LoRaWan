@@ -46,7 +46,7 @@ def tramas_perdidas(nodo_id):
     perdida_total = perdidas_por_salto[perdidas_por_salto > 0].sum()
     
     #cuando el nodo se reinicia y empieza a contar, para esa trama que se perdio 
-    #realizamos lo siguiente.
+    #realizamos lo siguiente, evita tramas negativas.
     tramas_perdidas_en_reinicios = nodo_id.loc[diferencia_tramas_entre_nodos<0,
                                                "contador"]
     perdida_total += (tramas_perdidas_en_reinicios[tramas_perdidas_en_reinicios>0].sum())
