@@ -89,28 +89,36 @@ class Sensores_LoRaWan(QMainWindow, Ui_MainWindow):
                 return
 
             self.df = df_nuevo
+
+            #solo extrae el nombre del archivo y no toda la ruta
             self.lineEdit.setText(os.path.basename(ruta))
 
             nodos = lista_de_Nodos(self.df)
+
+            #permiete cargar la lista sin que actue el metodo Analizar.
             self.comboBox.blockSignals(True)
             self.comboBox.clear()
+
+            #rellena los elementos de la lista
             for nodo in nodos:
                 self.comboBox.addItem(str(nodo))
+
+            #activa el metodo Analizar 
             self.comboBox.blockSignals(False)
 
-            self.statusBar().showMessage(f"Análisis completo: {len(nodos)} \
-                                         nodos procesados")
+            self.statusBar().showMessage(f"Análisis completo: {len(nodos)} nodos procesados")
             self.Analizar()
 
         except Exception as error:
-            QMessageBox.critical(self, "Error al abrir CSV", f"No se pudo leer \
-                                 el archivo:\n{error}")
+
+            #mensaje de advertencia al elejir un csv incorrecto
+            QMessageBox.critical(self, "Error al abrir CSV", f"No se pudo leer el archivo:\n{error}")
 
 
     #acciones del boton analizar
     def Analizar(self):
 
-        # accede a los elementos
+        # accede a los elementos seteados en pyside 6
         nodo_lista = self.comboBox.currentText()
         umbral_rssi = self.RSSI.value()
         umbral_bateria = self.Bateria.value()
@@ -147,7 +155,6 @@ class Sensores_LoRaWan(QMainWindow, Ui_MainWindow):
                     item.setForeground(fg)
                 self.tableWidget.setItem(fila, col, item)
 
-        self.tableWidget.resizeColumnsToContents()
 
 
         # Graficas
