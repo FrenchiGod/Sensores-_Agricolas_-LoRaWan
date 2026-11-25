@@ -21,7 +21,7 @@ def lista_de_Nodos(datos):
 
 #funcion para promediar el RSSI, el mean() promedia sin tomar los nan
 
-def Promedio(columna):
+def Promedio_de_log_a_lineal(columna):
     dbm_mW=10**((columna/10))
     Promedio_en_mW=dbm_mW.mean()
     mW_dbm=10*np.log10(Promedio_en_mW)
@@ -87,5 +87,5 @@ def porcentajes_bajos(lecturas, umbral):
 
 def lectura_minima(lectura):
     lecturas_validas=lectura.dropna()
-    return float(lecturas_validas.min())
+    return lecturas_validas.min()
 
