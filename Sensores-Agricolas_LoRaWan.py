@@ -68,6 +68,9 @@ class Sensores_LoRaWan(QMainWindow, Ui_MainWindow):
 
         #conectamos el pushbutton con el metodo Analizar
         self.pushButton.clicked.connect(self.Analizar)
+
+        #conecta,cada vez que se cambia un nodo en la lista seleccionable, la metodo Analizar
+        self.comboBox.currentTextChanged.connect(self.Analizar)
         self.df = None
 
 
@@ -80,7 +83,6 @@ class Sensores_LoRaWan(QMainWindow, Ui_MainWindow):
             "Archivos CSV (*.csv);;Todos los archivos (*)"
             
         )
-
         try:
             df_nuevo = Archivo(ruta)
             if df_nuevo is None:
