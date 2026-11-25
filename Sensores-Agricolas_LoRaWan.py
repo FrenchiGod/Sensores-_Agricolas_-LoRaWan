@@ -21,7 +21,7 @@ from PySide6.QtGui import QColor
 
 #importamos las funciones necesarias de calculos_generales y las de analizador 
 #de red
-from calculos_generales import Archivo, lista_de_Nodos, filtrar_nodo, Promedio
+from calculos_generales import Archivo, lista_de_Nodos, filtrar_nodo, Promedio_de_log_a_lineal
 from analizador_red import analizar_red
 
 
@@ -31,6 +31,7 @@ class Sensores_LoRaWan(QMainWindow, Ui_MainWindow):
 
     #funcion init
     def __init__(self):
+        #inicia la ventana principal del sistema op
         super().__init__()
 
 
@@ -58,12 +59,15 @@ class Sensores_LoRaWan(QMainWindow, Ui_MainWindow):
         layout_2.addWidget(self.canvas_bateria)
 
 
-        #Abrir y cerrar archivo CSV
+        #estas dos funciones conectan el menu de Archivo con el metodo abrir_csv
         self.actionAbrir_CSV.triggered.connect(self.abrir_csv)
         self.toolButton.clicked.connect(self.abrir_csv)
+
+        #para cerrar la aplicacion
         self.actionCerrar.triggered.connect(self.close)
+
+        #conectamos el pushbutton con el metodo Analizar
         self.pushButton.clicked.connect(self.Analizar)
-        self.comboBox.currentTextChanged.connect(self.Analizar)
         self.df = None
 
 
@@ -162,13 +166,13 @@ class Sensores_LoRaWan(QMainWindow, Ui_MainWindow):
         df_grafico = (
                     df_grafico.set_index("timestamp")
                       .resample("1h")
-                      .agg({"rssi":Promedio,"bateria":"mean"})
+                      .agg({"rssi":Promedio_de_log_a_lineal,"bateria":"mean"})
                       .reset_index()
                     )
 
 
         # promedio movil de la ventana
-        df_grafico["rssi_movil"] = df_grafico["rssi"].rolling(window=Ventana, min_periods=1).apply(Promedio)
+        df_grafico["rssi_movil"] = df_grafico["rssi"].rolling(window=Ventana, min_periods=1).apply(Promedio_de_log_a_lineal)
 
         # limpiamos los ejes para que cuando se actualice cambie
         self.ax_Rssi.clear()
