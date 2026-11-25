@@ -49,6 +49,8 @@ def tramas_perdidas(nodo_id):
     #realizamos lo siguiente, evita tramas negativas.
     tramas_perdidas_en_reinicios = nodo_id.loc[diferencia_tramas_entre_nodos<0,
                                                "contador"]
+    
+    #sumamos los valores que sean mayores que cero.
     perdida_total += (tramas_perdidas_en_reinicios[tramas_perdidas_en_reinicios>0].sum())
     return perdida_total
 
@@ -72,6 +74,7 @@ def reinicios_por_nodo(nodo_id):
 #se filtro mediciones corruptas 
 
 def baterias_filtradas(nodo_id):
+    #el loc elimina los false de la mascara boleana y los segundo es solo la columna
     return nodo_id.loc[nodo_id["bateria"]!= 0,"bateria"].dropna()
 
 #funcion que permite acceder a las lecturas minimas 
