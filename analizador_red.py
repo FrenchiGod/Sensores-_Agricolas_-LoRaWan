@@ -12,13 +12,13 @@ from calculos_generales import(
 
 #estado de los nodos 
 
-def estado_del_nodo(porcentaje_perdidas, porcentaje_baterias, porcentaje_reinicios,Porcentaje_snr,porcentaje_rssi):
+def estado_del_nodo(porcentaje_perdidas, porcentaje_baterias, reinicios_por_nodo,Porcentaje_snr,porcentaje_rssi):
 
-    peor_valor = max(porcentaje_baterias,porcentaje_perdidas,porcentaje_reinicios,Porcentaje_snr,porcentaje_rssi)
+    peor_valor = max(porcentaje_baterias,porcentaje_perdidas,Porcentaje_snr,porcentaje_rssi)
 
-    if peor_valor > 7.5:
+    if peor_valor > 7.5 or reinicios_por_nodo >= 2:
         estado = "critico"
-    elif peor_valor >= 2.5:
+    elif peor_valor >= 2.5 or reinicios_por_nodo == 1:
         estado = "alerta"
     else:
         estado = "Normal"
@@ -90,6 +90,7 @@ def analizar_red(datos,umbral_rssi,umbral_snr,umbral_bateria):
         estado
         ]
         fila_tabla.append(datos_fila)
+        
     #une los elementos de cada lista con un /n para que en el informe se vea uno debajo del otro
 
     bloque_problemas = "\n".join(problemas) if problemas else "• Sin problemas detectados"
