@@ -225,8 +225,8 @@ class Sensores_LoRaWan(QMainWindow, Ui_MainWindow):
         self.ax_bateria.set_title(f"Tensión de batería del nodo {nodo_lista} (V)", \
                                   fontsize=10, fontweight="bold")
         self.ax_bateria.set_ylabel("Batería (V)")
-        self.ax_bateria.set_ylim(2.0, 3.8)
-        self.ax_bateria.set_yticks([2.0,2.6, 3.2, 3.8])
+        self.ax_bateria.set_ylim(2.5, 4.0)
+        self.ax_bateria.set_yticks([2.5,3.0, 3.5, 4.0])
         self.ax_bateria.set_xlim(df_grafico["timestamp"].min(), df_grafico["timestamp"].\
                                  max())
         self.ax_bateria.set_xticks(fechas_dias)
