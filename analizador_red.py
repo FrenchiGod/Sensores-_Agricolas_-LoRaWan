@@ -68,14 +68,14 @@ def analizar_red(datos,umbral_rssi,umbral_snr,umbral_bateria):
         # Acumular lineas para el informe en texto plano
         if round(bateria_baja, 2) < round(umbral_bateria, 2):
             problemas.append(f"• {nodo}: batería baja ({bateria_baja:.2f} V)")
-        if round(reinicios, 2) > 0:
+        if reinicios > 0:
             problemas.append(f"• {nodo}: {reinicios} reinicio")
         if round(rssi_promedio, 2) < round(umbral_rssi, 2):
             problemas.append(f"• {nodo}: RSSI bajo ({rssi_promedio:.0f} dBm)")
         elif round(rssi_min, 2) <= round(umbral_rssi - 5, 2) or porcentaje_de_rssi_bajos > 5.0:
             problemas.append(f"• {nodo}: caída drástica de RSSI ({rssi_min:.1f} dBm)")
         if round(snr_promedio, 2) < round(umbral_snr, 2):
-            problemas.append(f"• {nodo}: SNR bajo ({snr_promedio:.1f} dB)")
+            problemas.append(f"• {nodo}: caida drastica de SNR ({snr_promedio:.1f} dB)")
         elif round(snr_min, 2) <= round(umbral_snr - 5 ,2) or porcentaje_de_srn_bajos > 5.0:
             problemas.append(f"• {nodo}: SNR bajo ({snr_min:.1f}dB)") 
         if perdidas > 0:
