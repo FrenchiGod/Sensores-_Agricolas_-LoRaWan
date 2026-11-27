@@ -83,37 +83,31 @@ class Sensores_LoRaWan(QMainWindow, Ui_MainWindow):
             "Archivos CSV (*.csv);;Todos los archivos (*)"
             
         )
-        try:
-            df_nuevo = Archivo(ruta)
-            if df_nuevo is None:
-                return
+        
+        df_nuevo = Archivo(ruta)
+        if df_nuevo is None:
+            return
 
-            self.df = df_nuevo
+        self.df = df_nuevo
 
-            #solo extrae el nombre del archivo y no toda la ruta
-            self.lineEdit.setText(os.path.basename(ruta))
+        #solo extrae el nombre del archivo y no toda la ruta
+        self.lineEdit.setText(os.path.basename(ruta))
 
-            nodos = lista_de_Nodos(self.df)
+        nodos = lista_de_Nodos(self.df)
 
-            #permiete cargar la lista sin que actue el metodo Analizar.
-            self.comboBox.blockSignals(True)
-            self.comboBox.clear()
+        #permiete cargar la lista sin que actue el metodo Analizar.
+        self.comboBox.blockSignals(True)
+        self.comboBox.clear()
 
-            #rellena los elementos de la lista
-            for nodo in nodos:
-                self.comboBox.addItem(str(nodo))
+        #rellena los elementos de la lista
+        for nodo in nodos:
+            self.comboBox.addItem(str(nodo))
 
-            #activa el metodo Analizar 
-            self.comboBox.blockSignals(False)
+        #activa el metodo Analizar 
+        self.comboBox.blockSignals(False)
 
-            self.statusBar().showMessage(f"Análisis completo: {len(nodos)} nodos procesados")
-            self.Analizar()
-
-        except Exception as error:
-
-            #mensaje de advertencia al elejir un csv incorrecto
-            QMessageBox.critical(self, "Error al abrir CSV", f"No se pudo leer el archivo:\n{error}")
-
+        self.statusBar().showMessage(f"Análisis completo: {len(nodos)} nodos procesados")
+        self.Analizar()
 
     #acciones del boton analizar
     def Analizar(self):
