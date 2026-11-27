@@ -34,7 +34,6 @@ class Sensores_LoRaWan(QMainWindow, Ui_MainWindow):
         super().__init__()
 
 
-        #seteo de valores
         self.setupUi(self)
 
 
