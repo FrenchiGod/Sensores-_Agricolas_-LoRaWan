@@ -11,10 +11,9 @@ matplotlib.use('QtAgg')
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FiguresCanvas,\
     NavigationToolbar2QT
 from matplotlib.figure import Figure
-from PySide6.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QFileDialog, \
-    QMessageBox
+from PySide6.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QFileDialog
 
-#importamos la interfaz grafica
+
 from ui_sensores_LoRaWan import Ui_MainWindow
 from PySide6.QtWidgets import QTableWidgetItem
 from PySide6.QtGui import QColor
